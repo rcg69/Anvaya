@@ -1,264 +1,271 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
+import { gsap } from "gsap";
 
-function Contact() {
-  const termsRef = useRef(null);
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Detect screen width for responsiveness
+// Animated header component
+const ScrollFloat = ({ children }) => {
+  const containerRef = useRef(null);
   useEffect(() => {
-    const checkScreen = () => setIsMobile(window.innerWidth <= 600);
-    checkScreen();
-
-    window.addEventListener("resize", checkScreen);
-    return () => window.removeEventListener("resize", checkScreen);
-  }, []);
-
-  const handleScroll = () => {
-    const el = termsRef.current;
+    const el = containerRef.current;
     if (!el) return;
+    const chars = el.querySelectorAll(".char");
+    gsap.fromTo(
+      chars,
+      {
+        opacity: 0,
+        yPercent: 120,
+        scaleY: 2.3,
+        scaleX: 0.7,
+        transformOrigin: "50% 0%",
+      },
+      {
+        opacity: 1,
+        yPercent: 0,
+        scaleY: 1,
+        scaleX: 1,
+        stagger: 0.03,
+        ease: "back.inOut(2)",
+        duration: 1,
+      }
+    );
+  }, [children]);
+  const splitText = typeof children === "string" ? children.split("") : [];
+  return (
+    <h2
+      ref={containerRef}
+      style={{
+        overflow: "hidden",
+        fontWeight: 900,
+        fontSize: "clamp(1.5rem, 8vw, 3rem)", // Slight increase for mobile
+        color: "#6f42c1",
+        textAlign: "center",
+        marginBottom: "1rem",
+        userSelect: "none",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        letterSpacing: ".01em",
+        wordBreak: "break-word",
+      }}
+    >
+      {splitText.map((char, idx) => (
+        <span
+          key={idx}
+          className="char"
+          style={{
+            display: "inline-block",
+            whiteSpace: char === " " ? "pre" : undefined,
+          }}
+        >
+          {char === " " ? "\u00A0" : char}
+        </span>
+      ))}
+    </h2>
+  );
+};
 
-    const scrollBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    const offset = 80; // Approx 2cm space in px
+// Content sections
+const SECTIONS = [
+  {
+    key: "about",
+    label: "About",
+    content: (
+      <>
+        <ScrollFloat>About Us</ScrollFloat>
+        <p
+          style={{
+            fontSize: "clamp(1rem, 4vw, 1.15rem)",
+            lineHeight: 1.7,
+            textAlign: "center",
+            margin: "0.5rem auto 0 auto",
+            maxWidth: "98vw",
+            width: "100%",
+            letterSpacing: "0.01em",
+            fontWeight: 400,
+          }}
+        >
+          Anvaya is a <strong>secure marketplace</strong> for buying and selling scratch cards.{" "}
+          We act as a trusted mediator—sellers post their scratch cards and buyers contact sellers{" "}
+          directly via email to arrange purchases. The platform focuses on{" "}
+          <strong>transparency</strong>, <strong>security</strong>, and empowering users with control
+          over their transactions.
+        </p>
+      </>
+    ),
+  },
+  {
+    key: "terms",
+    label: "Terms",
+    content: (
+      <>
+        <ScrollFloat>Terms &amp; Conditions</ScrollFloat>
+        <ul
+          style={{
+            fontSize: "clamp(.97rem, 3vw, 1.11rem)",
+            lineHeight: 1.7,
+            maxWidth: "98vw",
+            width: "100%",
+            margin: "0.6rem auto",
+            paddingLeft: "1.1em",
+            textAlign: "left",
+            listStyleType: "disc",
+          }}
+        >
+          <li>
+    <strong>General Commitment</strong><br />
+    We are committed to providing a secure, transparent, and trustworthy marketplace for buying and selling scratch cards. Our platform strives to maintain the highest standards of security and user satisfaction.
+  </li>
+  <li>
+    <strong>User Responsibility</strong><br />
+    Users are responsible for verifying the authenticity and validity of any scratch cards purchased on the platform. We recommend exercising due diligence before completing any transactions.
+  </li>
+  <li>
+    <strong>Limitation of Liability</strong><br />
+    We do not accept responsibility or liability for any losses, damages, or disputes arising from:
+    <ul style={{ margin: "0.5em 0 0 1em", fontSize: "0.98em" }}>
+      <li>Miscommunication between users,</li>
+      <li>Fraudulent activities conducted by any party,</li>
+      <li>Payment issues beyond our platform’s control,</li>
+      <li>The sale or distribution of fake or counterfeit scratch cards.</li>
+    </ul>
+  </li>
+  <li>
+    <strong>Dispute Resolution</strong><br />
+    While our dedicated support team is available to assist with account issues and transaction disputes, we cannot guarantee the resolution of disputes related to fraudulent cards or external payment failures.
+  </li>
+  <li>
+    <strong>User Agreement</strong><br />
+    By using our platform, you acknowledge and accept these terms and agree to take full responsibility for your transactions. We encourage all users to report suspicious activities or listings immediately.
+  </li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    key: "developer",
+    label: "Developer",
+    content: (
+      <>
+        <ScrollFloat>Developer</ScrollFloat>
+        <div style={{ textAlign: "center", marginBottom: ".5rem" }}>
+          {/* Developer image: Replace '/ram.jpg' with your actual image path or URL */}
+          <img
+            src="/ram.jpg"
+            alt="Developer"
+            style={{
+              width: "180px", // doubled size from original 90px
+              height: "180px", // doubled size
+              borderRadius: "50%",
+              objectFit: "cover",
+              marginBottom: "1rem",
+              maxWidth: "40vw",
+            }}
+          />
+          <h3
+            style={{
+              fontSize: "clamp(1.1rem,4vw,1.6rem)",
+              color: "#6f42c1",
+              marginBottom: "0.4rem",
+              fontWeight: 800,
+              letterSpacing: "0.01em",
+            }}
+          >
+            Ram Charana Goud
+          </h3>
+          <p
+            style={{
+              fontSize: "clamp(.98rem,3vw,1.14rem)",
+              lineHeight: 1.55,
+              maxWidth: "92vw",
+              margin: "0 auto",
+            }}
+          >
+            Passionate full-stack developer specializing in building secure, scalable web applications
+            with smooth UI/UX.
+            <br />
+            Reach out at{" "}
+            <a
+              href="mailto:ramgoud696@gmail.com"
+              style={{ color: "#6f42c1", textDecoration: "underline", wordBreak: "break-word" }}
+            >
+              ramgoud696@gmail.com
+            </a>
+          </p>
+        </div>
+      </>
+    ),
+  },
+];
 
-    if (scrollBottom < 1 && el.scrollTop > 0) {
-      // User reached bottom, scroll up by offset smoothly
-      el.scrollTo({
-        top: el.scrollTop - offset,
-        behavior: "smooth",
-      });
-    }
-  };
+const SimpleAboutTermsDeveloper = () => {
+  const [selected, setSelected] = useState("about");
+  const section = SECTIONS.find((s) => s.key === selected);
 
   return (
     <div
-      className="app-main-container contact-container"
       style={{
+        background: "#18181c",
+        color: "#eee",
         minHeight: "100vh",
-        padding: "48px 16px 40px 16px",
+        width: "100vw",
+        maxWidth: "100vw",
+        overflowX: "hidden",
         boxSizing: "border-box",
+        padding: "3vw 5vw", // More room on mobile
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
         display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
+        flexDirection: "column",
+        alignItems: "center",
       }}
     >
+      {/* Toggle Buttons */}
       <div
         style={{
-          maxWidth: 660,
+          display: "flex",
+          gap: "0.7rem",
+          margin: "1.2rem 0 2rem 0",
+          justifyContent: "center",
+          flexWrap: "wrap", // stack buttons on extra small screens
           width: "100%",
-          marginTop: 36,
-
-          // Responsive adjustments for mobile
-          padding: isMobile ? "20px 12px" : undefined,
-          marginTop: isMobile ? 20 : 36,
         }}
       >
-        {/* About Us Block */}
-        <section
-          style={{
-            background: "rgba(40, 38, 66, 0.95)",
-            borderRadius: 18,
-            boxShadow: "0 8px 32px rgba(187,134,252,0.15), 0 2px 8px rgba(0,0,0,0.18)",
-            padding: isMobile ? "24px 18px" : "36px 32px",
-            color: "#eeeeee",
-            backdropFilter: "blur(7px)",
-            marginBottom: 28,
-            border: "1.5px solid #bb86fc44",
-          }}
-        >
-          <h2
+        {SECTIONS.map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setSelected(key)}
             style={{
-              color: "#bb86fc",
-              marginBottom: 15,
-              fontWeight: 900,
-              fontSize: isMobile ? "1.8rem" : "2.1rem",
-              textShadow: "0 2px 8px #4a00e041",
-              letterSpacing: 1,
-              textAlign: "center",
+              background: selected === key ? "#6f42c1" : "#232329",
+              color: selected === key ? "#fff" : "#d1c8ec",
+              border: "none",
+              borderRadius: "1rem",
+              fontSize: "clamp(1.02rem, 4vw, 1.1rem)",
+              fontWeight: 600,
+              padding: "0.6em 1.5em",
+              cursor: "pointer",
+              boxShadow: selected === key ? "0 0 0 2px #6f42c13a" : "none",
+              transition: "background 0.22s, color 0.22s",
+              minWidth: "88px",
+              marginBottom: "0.5rem", // for wrap/flex responsiveness
+              touchAction: "manipulation",
             }}
           >
-            About Us
-          </h2>
-          <p
-            style={{
-              color: "#bbb",
-              fontSize: isMobile ? "1rem" : "1.15rem",
-              textAlign: "center",
-              lineHeight: 1.6,
-              margin: 0,
-            }}
-          >
-            We are committed to providing a secure, transparent, and trustworthy
-            marketplace for buying and selling scratch cards. If you have any
-            questions, feedback, or need assistance with your account or
-            transactions, please don’t hesitate to reach out. Our dedicated
-            support team is here to help resolve any disputes and ensure a
-            smooth experience on the platform. We value your trust and strive to
-            maintain the highest standards of security and user satisfaction in
-            every interaction.
-          </p>
-        </section>
-
-        {/* Terms and Conditions Block */}
-        <section
-          ref={termsRef}
-          onScroll={handleScroll}
-          style={{
-            background: "rgba(40, 38, 66, 0.85)",
-            borderRadius: 18,
-            boxShadow: "0 8px 32px rgba(100,100,150,0.12), 0 2px 10px rgba(0,0,0,0.1)",
-            padding: isMobile ? "24px 20px" : "32px 28px",
-            color: "#ddd",
-            backdropFilter: "blur(5px)",
-            border: "1.5px solid #775fcfbb",
-            maxHeight: isMobile ? "320px" : "420px",
-            overflowY: "auto",
-            lineHeight: 1.5,
-          }}
-        >
-          {/* Terms & Conditions content unchanged */}
-          <h2
-            style={{
-              color: "#9E78FA",
-              fontWeight: 800,
-              textAlign: "center",
-              fontSize: isMobile ? "1.6rem" : "1.9rem",
-              marginBottom: 20,
-              letterSpacing: 1,
-              textShadow: "0 1px 8px #976efa50",
-            }}
-          >
-            Terms and Conditions
-          </h2>
-
-          {[{
-            title: "General Commitment",
-            content: "We are committed to providing a secure, transparent, and trustworthy marketplace for buying and selling scratch cards. Our platform strives to maintain the highest standards of security and user satisfaction.",
-          }, {
-            title: "User Responsibility",
-            content: "Users are responsible for verifying the authenticity and validity of any scratch cards purchased on the platform. We recommend exercising due diligence before completing any transactions."
-          }, {
-            title: "Limitation of Liability",
-            content: "We do not accept responsibility or liability for any losses, damages, or disputes arising from:",
-            list: [
-              "Miscommunication between users,",
-              "Fraudulent activities conducted by any party,",
-              "Payment issues beyond our platform’s control,",
-              "The sale or distribution of fake or counterfeit scratch cards."
-            ]
-          }, {
-            title: "Dispute Resolution",
-            content: "While our dedicated support team is available to assist with account issues and transaction disputes, we cannot guarantee the resolution of disputes related to fraudulent cards or external payment failures."
-          }, {
-            title: "User Agreement",
-            content: "By using our platform, you acknowledge and accept these terms and agree to take full responsibility for your transactions. We encourage all users to report suspicious activities or listings immediately."
-          }].map(({ title, content, list }) => (
-            <div key={title} style={{ marginTop: title === "General Commitment" ? 0 : 15 }}>
-              <h3 style={{ color: "#bb86fc", marginBottom: 10, fontWeight: 700 }}>
-                {title}
-              </h3>
-              <p>
-                {content}
-              </p>
-              {list && (
-                <ul style={{ paddingLeft: 20, marginTop: 5, color: "#ccc" }}>
-                  {list.map((item, idx) => <li key={idx}>{item}</li>)}
-                </ul>
-              )}
-            </div>
-          ))}
-        </section>
-
-        <p
-          style={{
-            color: "#bbbbbb",
-            fontSize: isMobile ? "0.9rem" : "1rem",
-            lineHeight: 1.5,
-            marginTop: 16,
-            textAlign: "center",
-          }}
-        >
-          Explore features like posting scratch cards, managing your personalized list, and easily reaching our support through the Contact page.
-        </p>
-
-        {/* Developer Info Section */}
-        <section
-          className="developer-info"
-          style={{
-            display: "flex",
-            flexDirection: isMobile ? "column" : "row",
-            alignItems: "center",
-            gap: 22,
-            marginTop: 48,
-            paddingTop: 24,
-            borderTop: "1.5px solid #463268",
-            background: "linear-gradient(90deg, transparent 0%, #23232380 35%, transparent 100%)",
-            textAlign: isMobile ? "center" : "left"
-          }}
-        >
-          {/* Developer Picture */}
-          <img
-            src="/ram.jpg"
-            alt="Ram charana Goud"
-            style={{
-              width: 110,
-              height: 110,
-              borderRadius: "50%",
-              objectFit: "cover",
-              boxShadow: "0 0 24px 2px rgba(187, 134, 252, 0.46)",
-              border: "3.5px solid #bb86fc33",
-              background: "#18102a",
-              margin: isMobile ? "0 auto 16px auto" : undefined,
-            }}
-          />
-
-          {/* Developer Text Info */}
-          <div>
-            <h3
-              style={{
-                color: "#bb86fc",
-                marginBottom: 7,
-                fontWeight: 800,
-                fontSize: "1.11rem",
-                letterSpacing: 0.6,
-                textShadow: "0 1px 6px #bb86fc12",
-              }}
-            >
-              Developer
-            </h3>
-            <p
-              style={{
-                color: "#bbbbbb",
-                marginBottom: 6,
-                fontSize: "1.10rem",
-                fontWeight: 600,
-                letterSpacing: 0.2,
-              }}
-            >
-              Ram charana Goud
-            </p>
-            <p
-              style={{
-                color: "#aaaaaa",
-                fontSize: "0.92rem",
-                lineHeight: 1.52,
-                maxWidth: 340,
-                marginBottom: 0,
-              }}
-            >
-              Passionate full-stack developer specializing in building dynamic and secure web applications with sleek UI and smooth UX. Reach me at{" "}
-              <a
-                href="mailto:ramgoud696@gmail.com"
-                style={{ color: "#bb86fc", textDecoration: "underline", fontWeight: 600 }}
-              >
-                ramgoud696@gmail.com
-              </a>{" "}
-              for any queries or feedback.
-            </p>
-          </div>
-        </section>
+            {label}
+          </button>
+        ))}
       </div>
+      {/* Section */}
+      <section
+        style={{
+          width: "100%",
+          maxWidth: 760,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          margin: "0 auto",
+          boxSizing: "border-box",
+        }}
+      >
+        {section && section.content}
+      </section>
     </div>
   );
-}
+};
 
-export default Contact;
+export default SimpleAboutTermsDeveloper;
