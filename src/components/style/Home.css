@@ -1,0 +1,173 @@
+/* style/Home.css */
+
+.app-outer-wrapper {
+  width: 100%;
+  max-width: 100vw;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;
+}
+
+.home-main {
+  padding: 0;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+.banner {
+  position: relative;
+  width: 100vw;
+  overflow: hidden;
+  border-radius: 0 0 20px 20px;
+  background-color: #232323;
+  margin-bottom: 24px;
+  box-sizing: border-box;
+  user-select: none;
+  z-index: 1;
+  left: 50%;
+  right: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  height: 50vh;
+  max-height: 300px;
+}
+
+@media (max-width: 600px) {
+  .banner {
+    height: 30vh;
+    max-height: 200px;
+  }
+}
+
+.banner-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.8s ease-in-out;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.banner-image.active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.main-heading {
+  padding-left: 16px;
+  color: #eeeeee;
+}
+
+.error-message {
+  color: tomato;
+  text-align: center;
+}
+
+.loading-message {
+  font-style: italic;
+  text-align: center;
+  color: #eeeeee;
+}
+
+.scratch-cards-wrapper {
+  width: 100%;
+  max-width: 100vw;
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.no-cards-message {
+  text-align: center;
+  color: #eeeeee;
+}
+
+.scratch-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 10px;
+  margin-bottom: 50px;
+  padding-bottom: 50px;
+  justify-content: center;
+}
+
+.scratch-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  background-color: #232323;
+  color: #eeeeee;
+  box-shadow: 0 4px 14px rgba(187, 134, 252, 0.25);
+  max-width: 280px;
+  user-select: none;
+}
+
+.scratch-card-img {
+  width: 100%;
+  height: 160px;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-bottom: 10px;
+  box-shadow: 0 0 10px rgba(187, 134, 252, 0.3);
+  user-select: none;
+}
+
+.scratch-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #bb86fc;
+  margin: 0;
+  word-wrap: break-word;
+  user-select: text;
+}
+
+.scratch-card-description {
+  font-size: 16px;
+  color: #bbbbbb;
+  margin: 0;
+  flex-grow: 1;
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+}
+
+.scratch-card-price {
+  font-weight: 700;
+  font-size: 18px;
+  color: #bb86fc;
+  margin-top: 8px;
+  user-select: text;
+}
+
+.scratch-card-poster {
+  font-size: 14px;
+  color: #50beff;
+  margin-top: 4px;
+  word-break: break-word;
+  user-select: text;
+}
+
+.poster-email {
+  color: #50beff;
+  text-decoration: underline;
+}
+
+.scratch-card-expiry {
+  font-size: 14px;
+  color: #bbbbbb;
+  margin-top: 4px;
+  user-select: text;
+}
