@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
 import "./style/Home.css";
 
 function Home() {
@@ -7,12 +9,12 @@ function Home() {
   const [error, setError] = useState(null);
   const [expandedCardId, setExpandedCardId] = useState(null);
 
-  // Fullscreen modal state
-  const [fullscreenImage, setFullscreenImage] = useState(null);
+  // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const BACKEND_URL =
-    process.env.REACT_APP_BACKEND_URL ||
-    "https://final-backend-srja.onrender.com";
+    process.env.REACT_APP_BACKEND_URL || "https://final-backend-srja.onrender.com";
 
   const bannerImages = [
     "https://m.media-amazon.com/images/S/al-eu-726f4d26-7fdb/e9512ab9-474c-49b4-9b56-1d004a582fd5._CR0%2C0%2C3000%2C600_SX1500_.jpg",
@@ -90,12 +92,22 @@ function Home() {
     setExpandedCardId((prevId) => (prevId === cardId ? null : cardId));
   };
 
-  const openFullscreen = (imgUrl) => {
-    setFullscreenImage(imgUrl);
-  };
+  // Prepare slides for lightbox
+  const lightboxSlides = scratchCards
+    .filter((card) => card.descriptionImageUrl)
+    .map((card) => ({
+      src: `${BACKEND_URL}${card.descriptionImageUrl}`,
+      alt: card.title || "Description Image",
+    }));
 
-  const closeFullscreen = () => {
-    setFullscreenImage(null);
+  const openLightboxForCard = (cardId) => {
+    const index = scratchCards
+      .filter((c) => c.descriptionImageUrl)
+      .findIndex((c) => c._id === cardId);
+    if (index >= 0) {
+      setLightboxIndex(index);
+      setLightboxOpen(true);
+    }
   };
 
   return (
@@ -105,15 +117,8 @@ function Home() {
 
         <h2 className="main-heading">All Scratch Cards</h2>
 
-        {error && (
-          <div className="error-text" role="alert">
-            {error}
-          </div>
-        )}
-
-        {loading && (
-          <div className="loading-text">Loading scratch cards...</div>
-        )}
+        {error && <div className="error-text" role="alert">{error}</div>}
+        {loading && <div className="loading-text">Loading scratch cards...</div>}
 
         {!loading && !error && (
           <div className="scratch-cards-wrapper">
@@ -140,16 +145,10 @@ function Home() {
                     )}
                     <h3 className="scratch-card-title">{card.title}</h3>
 
-                    {/* CLICKABLE DESCRIPTION */}
+                    {/* Description click logic */}
                     <div
                       className="scratch-card-description-wrapper"
                       onClick={() => handleDescriptionClick(card._id)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          handleDescriptionClick(card._id);
-                        }
-                      }}
                       role="button"
                       tabIndex={0}
                       aria-expanded={isExpanded}
@@ -161,18 +160,14 @@ function Home() {
                             src={`${BACKEND_URL}${card.descriptionImageUrl}`}
                             alt={`${card.title} description`}
                             className="description-image-expanded"
-                            style={{ cursor: "zoom-in" }}
                             onClick={(e) => {
-                              e.stopPropagation(); // Prevent collapsing
-                              openFullscreen(
-                                `${BACKEND_URL}${card.descriptionImageUrl}`
-                              );
+                              e.stopPropagation();
+                              openLightboxForCard(card._id);
                             }}
+                            style={{ cursor: "zoom-in" }}
                           />
                         ) : card.description ? (
-                          <p className="scratch-card-description">
-                            {card.description}
-                          </p>
+                          <p className="scratch-card-description">{card.description}</p>
                         ) : (
                           <p
                             className="scratch-card-description"
@@ -194,21 +189,15 @@ function Home() {
                       )}
                     </div>
 
-                    {card.price && (
-                      <p className="scratch-card-price">Price: ₹{card.price}</p>
-                    )}
+                    {card.price && <p className="scratch-card-price">Price: ₹{card.price}</p>}
                     {card.posterEmail && (
                       <p className="scratch-card-poster">
-                        Posted by:{" "}
-                        <a href={`mailto:${card.posterEmail}`}>
-                          {card.posterEmail}
-                        </a>
+                        Posted by: <a href={`mailto:${card.posterEmail}`}>{card.posterEmail}</a>
                       </p>
                     )}
                     {card.expiryDate && (
                       <p className="scratch-card-expiry">
-                        Expires on:{" "}
-                        {new Date(card.expiryDate).toLocaleDateString()}
+                        Expires on: {new Date(card.expiryDate).toLocaleDateString()}
                       </p>
                     )}
                   </article>
@@ -218,35 +207,17 @@ function Home() {
           </div>
         )}
 
-        {/* Fullscreen modal */}
-        {fullscreenImage && (
-          <div
-            className="fullscreen-overlay"
-            onClick={closeFullscreen}
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100vw",
-              height: "100vh",
-              background: "rgba(0, 0, 0, 0.9)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 9999,
+        {/* Lightbox modal */}
+        {lightboxOpen && (
+          <Lightbox
+            open={lightboxOpen}
+            close={() => setLightboxOpen(false)}
+            slides={lightboxSlides}
+            index={lightboxIndex}
+            on={{
+              view: ({ index }) => setLightboxIndex(index),
             }}
-          >
-            <img
-              src={fullscreenImage}
-              alt="Fullscreen description"
-              style={{
-                maxWidth: "90%",
-                maxHeight: "90%",
-                objectFit: "contain",
-                cursor: "zoom-out",
-              }}
-            />
-          </div>
+          />
         )}
       </main>
     </div>
