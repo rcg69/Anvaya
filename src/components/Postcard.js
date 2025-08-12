@@ -3,7 +3,9 @@ import "./style/postcard.css";
 
 function Postcard() {
   const [title, setTitle] = useState("");
+  const [descriptionType, setDescriptionType] = useState("text"); // "text" or "image"
   const [description, setDescription] = useState("");
+  const [descriptionImage, setDescriptionImage] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
   const [price, setPrice] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
@@ -11,6 +13,17 @@ function Postcard() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  // Handle description image upload
+  const handleDescriptionImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setDescriptionImage(file);
+      setDescriptionType("image");
+      // Optionally create preview
+      setDescription(URL.createObjectURL(file));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +42,6 @@ function Postcard() {
       setErrorMessage("Email is required.");
       return;
     }
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(posterEmail)) {
       setErrorMessage("Invalid email format.");
@@ -39,21 +51,58 @@ function Postcard() {
     setLoading(true);
 
     try {
-      const res = await fetch(`https://final-backend-srja.onrender.com/api/scratchCards`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description, imageUrl, price, expiryDate, posterEmail }),
-      });
+      let payload = {
+        title,
+        price,
+        expiryDate,
+        posterEmail,
+        imageUrl,
+      };
+
+      if (descriptionType === "text") {
+        payload.description = description;
+      } else if (descriptionType === "image") {
+        // To send the image, use FormData
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("price", price);
+        formData.append("expiryDate", expiryDate);
+        formData.append("posterEmail", posterEmail);
+        formData.append("imageUrl", imageUrl);
+        formData.append("descriptionImage", descriptionImage);
+
+        const res = await fetch(
+          `https://final-backend-srja.onrender.com/api/scratchCards`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        if (res.ok) {
+          setSuccessMessage("Card posted successfully!");
+          resetForm();
+        } else {
+          const data = await res.json();
+          setErrorMessage(data.error || "Failed to post card.");
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Send JSON if description is text
+      const res = await fetch(
+        `https://final-backend-srja.onrender.com/api/scratchCards`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (res.ok) {
         setSuccessMessage("Card posted successfully!");
-        setTitle("");
-        setDescription("");
-        setImageUrl("");
-        setPrice("");
-        setExpiryDate("");
-        setPosterEmail("");
-        e.target.reset && e.target.reset();
+        resetForm();
       } else {
         const data = await res.json();
         setErrorMessage(data.error || "Failed to post card.");
@@ -63,6 +112,17 @@ function Postcard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setDescriptionImage(null);
+    setImageUrl("");
+    setPrice("");
+    setExpiryDate("");
+    setPosterEmail("");
+    setDescriptionType("text");
   };
 
   return (
@@ -79,13 +139,49 @@ function Postcard() {
         aria-label="Title"
         name="title"
       />
-      <textarea
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Description"
-        aria-label="Description"
-        name="description"
-      />
+
+      {descriptionType === "text" ? (
+        <>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Description"
+            aria-label="Description"
+            name="description"
+          />
+          <button
+            type="button"
+            onClick={() => setDescriptionType("image")}
+            className="switch-desc-mode"
+          >
+            Upload Screenshot Instead
+          </button>
+        </>
+      ) : (
+        <>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleDescriptionImageChange}
+            aria-label="Description Image"
+          />
+          {description && (
+            <img
+              src={description}
+              alt="Description Preview"
+              className="desc-preview"
+            />
+          )}
+          <button
+            type="button"
+            onClick={() => setDescriptionType("text")}
+            className="switch-desc-mode"
+          >
+            Type Description Instead
+          </button>
+        </>
+      )}
+
       <input
         value={imageUrl}
         onChange={(e) => setImageUrl(e.target.value)}
