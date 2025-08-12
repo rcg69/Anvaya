@@ -1,30 +1,119 @@
-.contact-container {
-  padding: 20px;
-  background-color: #1e1e1e;
-  color: #eeeeee;
+.app-container {
+  background: #18181c;
+  color: #eee;
+  min-height: 100vh;
+  width: 100vw;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  padding: 3vw 5vw;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.contact-container h2 {
-  font-weight: 700;
-  font-size: 28px;
-  margin-bottom: 12px;
-  color: #bb86fc;
+/* Toggle buttons container */
+.toggle-buttons {
+  display: flex;
+  gap: 0.7rem;
+  margin: 1.2rem 0 2rem 0;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
 }
 
-.contact-container p {
-  font-size: 16px;
-  color: #bbbbbb;
-}
-
-.contact-container a {
-  color: #bb86fc;
-  text-decoration: none;
+/* Individual toggle button */
+.toggle-button {
+  background: #232329;
+  color: #d1c8ec;
+  border: none;
+  border-radius: 1rem;
+  font-size: clamp(1.02rem, 4vw, 1.1rem);
   font-weight: 600;
+  padding: 0.6em 1.5em;
+  cursor: pointer;
+  transition: background 0.22s, color 0.22s;
+  min-width: 88px;
+  margin-bottom: 0.5rem;
+  touch-action: manipulation;
 }
 
-.contact-container a:hover,
-.contact-container a:focus {
+.toggle-button.active {
+  background: #6f42c1;
+  color: white;
+  box-shadow: 0 0 0 2px #6f42c13a;
+}
+
+/* Section container */
+.section-container {
+  width: 100%;
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Animated heading */
+.scroll-float {
+  overflow: hidden;
+  font-weight: 900;
+  font-size: clamp(1.5rem, 8vw, 3rem);
+  color: #6f42c1;
+  text-align: center;
+  margin-bottom: 1rem;
+  user-select: none;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  letter-spacing: .01em;
+  word-break: break-word;
+}
+
+/* Characters for GSAP */
+.scroll-float .char {
+  display: inline-block;
+}
+
+/* Paragraph styling */
+.section-text {
+  font-size: clamp(1rem, 4vw, 1.15rem);
+  line-height: 1.7;
+  text-align: center;
+  margin: 0.5rem auto 0 auto;
+  max-width: 98vw;
+  width: 100%;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+}
+
+/* Developer section */
+.developer-img {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+  max-width: 40vw;
+}
+
+.developer-name {
+  font-size: clamp(1.1rem,4vw,1.6rem);
+  color: #6f42c1;
+  margin-bottom: 0.4rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.developer-desc {
+  font-size: clamp(.98rem,3vw,1.14rem);
+  line-height: 1.55;
+  max-width: 92vw;
+  margin: 0 auto;
+}
+
+.developer-email {
+  color: #6f42c1;
   text-decoration: underline;
-  outline: none;
+  word-break: break-word;
 }

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./style/postcard.css";
 
 function Postcard() {
   const [title, setTitle] = useState("");
@@ -68,7 +69,7 @@ function Postcard() {
     <form
       onSubmit={handleSubmit}
       aria-label="Post a new scratch card"
-      style={{ display: "flex", flexDirection: "column", gap: "12px", maxWidth: 400, margin: "auto" }}
+      className="postcard-form"
     >
       <input
         value={title}
@@ -119,13 +120,14 @@ function Postcard() {
       <button type="submit" disabled={loading} aria-busy={loading}>
         {loading ? "Posting..." : "Post Scratch Card"}
       </button>
+
       {errorMessage && (
-        <div style={{ color: "tomato", fontWeight: "600" }} role="alert">
+        <div className="postcard-error" role="alert">
           {errorMessage}
         </div>
       )}
       {successMessage && (
-        <div style={{ color: "limegreen", fontWeight: "600" }} role="status">
+        <div className="postcard-success" role="status">
           {successMessage}
         </div>
       )}

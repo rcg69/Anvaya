@@ -1,97 +1,194 @@
-.mylist-container {
-  padding: 20px;
-  background-color: #1e1e1e;
+/* Outer wrapper */
+.mylist-wrapper {
+  min-height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #080808ff 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  padding: 40px 0;
+}
+
+/* Inner flex container */
+.mylist-inner {
+  display: flex;
+  gap: 46px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1850px;
+}
+
+/* === Banner === */
+.banner-container {
+  position: relative;
+  width: 330px;
+  height: 630px;
+  overflow: hidden;
+  border-radius: 18px;
+  background: rgba(24, 18, 38, 0.96);
+  box-shadow: 0 8px 32px rgba(70, 41, 150, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banner-img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  transition: transform 1s cubic-bezier(.7,0,.3,1), opacity 0.85s;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(187, 134, 252, 0.12);
+  object-fit: cover;
+  z-index: 1;
+  background: #2a233a;
+}
+
+/* === Card main panel === */
+.mylist-card {
+  background: linear-gradient(135deg, #080808ff 100%);
+  border-radius: 18px;
+  padding: 32px 36px;
+  max-width: 630px;
+  min-width: 370px;
+  width: 100%;
   color: #eeeeee;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  backdrop-filter: blur(8px);
+  box-sizing: border-box;
+  min-height: 500px;
 }
 
-.mylist-container h2 {
-  font-weight: 700;
-  font-size: 28px;
-  margin-bottom: 20px;
-  color: #bb86fc;
+.mylist-title {
+  color: #f1eef5ff;
+  margin-bottom: 24px;
+  font-weight: 900;
+  font-size: 2rem;
+  text-align: center;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px #4a00e041;
 }
 
+/* === Form === */
 .mylist-form {
-  margin-bottom: 20px;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  max-width: 420px;
+  margin-bottom: 28px;
+  justify-content: center;
+  background: #000;
+  padding: 16px 20px;
+  border-radius: 14px;
 }
 
-.mylist-form input[type="text"] {
-  padding: 8px;
-  font-size: 16px;
-  border-radius: 4px;
-  border: 1px solid #444444;
-  background-color: #232323;
-  color: #eeeeee;
+.mylist-input {
   flex: 1 1 150px;
-  min-width: 120px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1.8px solid #5935a8;
+  background: rgba(55, 45, 90, 0.35);
+  color: #e0dfff;
+  font-size: 1.05rem;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.25s ease;
+  box-shadow: 0 0 6px #7e57f1a8;
 }
-
-.mylist-form input[type="text"]:focus {
+.mylist-input:focus {
   border-color: #bb86fc;
-  box-shadow: 0 0 8px rgba(187, 134, 252, 0.6);
 }
 
-.mylist-form button {
-  padding: 8px 16px;
-  background-color: #bb86fc;
-  color: #1e1e1e;
-  font-weight: 600;
-  font-size: 16px;
+.mylist-btn {
+  flex: 1 1 100px;
+  padding: 12px 0;
+  border-radius: 12px;
   border: none;
-  border-radius: 4px;
+  background: linear-gradient(90deg, #7b58f9, #bb86fc, #7b58f9);
+  color: #fff;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.3s;
-  white-space: nowrap;
+  box-shadow: 0 3px 12px #bb86fcbb;
+  transition: filter 0.3s ease;
+  user-select: none;
+}
+.mylist-btn:hover {
+  filter: brightness(1.15);
 }
 
-.mylist-form button:hover,
-.mylist-form button:focus {
-  background-color: #9a69e0;
-  outline: none;
+/* === Status messages === */
+.loading-text {
+  color: #bbb;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-top: 20px;
+  font-style: italic;
+}
+.error-text {
+  color: #ff8f8f;
+  text-align: center;
+  font-weight: 600;
+  margin-top: 22px;
+}
+.empty-text {
+  color: #bbb;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-top: 20px;
 }
 
-.mylist-list {
+/* === Saved cards list === */
+.mylist-ul {
   list-style: none;
-  padding-left: 0;
-  max-width: 420px;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 320px;
+  overflow-y: auto;
 }
-
-.mylist-list li {
-  margin-bottom: 10px;
-  border: 1px solid #444444;
-  border-radius: 8px;
-  padding: 12px;
+.mylist-li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #232323;
+  background: rgba(60, 43, 90, 0.33);
+  padding: 12px 18px;
+  border-radius: 14px;
+  box-shadow: inset 0 0 8px #bb86fc88;
+  font-size: 1.08rem;
+  color: #ddd;
+  user-select: text;
 }
-
-.mylist-list strong {
+.mylist-card-name {
+  color: #bb86fc;
   font-weight: 700;
-  color: #eeeeee;
+  margin-right: 8px;
+}
+.mylist-email {
+  color: #50beff;
+  text-decoration: underline;
+  word-break: break-word;
+  cursor: pointer;
 }
 
-.mylist-remove-btn {
-  background-color: #bb86fc;
+/* === Remove button === */
+.remove-btn {
+  background: #f44336;
   border: none;
-  border-radius: 4px;
-  color: #1e1e1e;
-  padding: 6px 12px;
+  border-radius: 10px;
+  color: #fff;
+  padding: 6px 14px;
   cursor: pointer;
   font-weight: 600;
-  transition: background-color 0.3s;
+  box-shadow: 0 2px 10px #f4433677;
+  transition: filter 0.25s ease;
+  user-select: none;
 }
-
-.mylist-remove-btn:hover,
-.mylist-remove-btn:focus {
-  background-color: #9a69e0;
-  outline: none;
+.remove-btn:hover {
+  filter: brightness(1.15);
 }

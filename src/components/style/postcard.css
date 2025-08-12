@@ -1,0 +1,79 @@
+/* ===== Form Wrapper ===== */
+.postcard-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  margin: auto;
+  padding: 16px;
+  background-color: transparent; /* keep page bg */
+  box-sizing: border-box;
+}
+
+/* ===== Input & Textarea ===== */
+.postcard-form input,
+.postcard-form textarea {
+  padding: 10px 12px;
+  border: 1.5px solid #5935a8;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  background: rgba(55, 45, 90, 0.35);
+  color: #eeeeee;
+  transition: border-color 0.25s ease;
+}
+
+.postcard-form input:focus,
+.postcard-form textarea:focus {
+  border-color: #bb86fc;
+}
+
+/* Textarea height */
+.postcard-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* ===== Button ===== */
+.postcard-form button {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #7b58f9, #bb86fc, #7b58f9);
+  border: none;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: filter 0.25s ease;
+}
+
+.postcard-form button:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+
+.postcard-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===== Messages ===== */
+.postcard-error {
+  color: tomato;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.postcard-success {
+  color: limegreen;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* ===== Mobile responsiveness ===== */
+@media (max-width: 500px) {
+  .postcard-form {
+    max-width: 90%;
+    padding: 12px;
+  }
+}
