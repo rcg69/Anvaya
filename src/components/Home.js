@@ -7,9 +7,12 @@ function Home() {
   const [error, setError] = useState(null);
   const [expandedCardId, setExpandedCardId] = useState(null);
 
-  // 🔹 Backend Base URL (from .env or fixed)
+  // Fullscreen modal state
+  const [fullscreenImage, setFullscreenImage] = useState(null);
+
   const BACKEND_URL =
-    process.env.REACT_APP_BACKEND_URL || "https://final-backend-srja.onrender.com";
+    process.env.REACT_APP_BACKEND_URL ||
+    "https://final-backend-srja.onrender.com";
 
   const bannerImages = [
     "https://m.media-amazon.com/images/S/al-eu-726f4d26-7fdb/e9512ab9-474c-49b4-9b56-1d004a582fd5._CR0%2C0%2C3000%2C600_SX1500_.jpg",
@@ -17,7 +20,7 @@ function Home() {
     "https://www.abhibus.com/blog/wp-content/uploads/2023/05/abhiubs-logo-696x423.jpg",
     "https://businessmodelnavigator.com/img/case-firms-logos/42.png",
     "https://palmonas.com/cdn/shop/files/web_link_creative_2.jpg?v=1738936545",
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_m9RRzlBWRBBpX39bUde7w0vwFN2IUpW68A&s"
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_m9RRzlBWRBBpX39bUde7w0vwFN2IUpW68A&s",
   ];
 
   useEffect(() => {
@@ -58,7 +61,7 @@ function Home() {
 
     const dynamicStyle = {
       height: windowWidth <= 600 ? "30vh" : "50vh",
-      maxHeight: windowWidth <= 600 ? 200 : 300
+      maxHeight: windowWidth <= 600 ? 200 : 300,
     };
 
     return (
@@ -74,7 +77,7 @@ function Home() {
               style={{
                 opacity: isActive ? 1 : 0,
                 pointerEvents: isActive ? "auto" : "none",
-                zIndex: isActive ? 2 : 0
+                zIndex: isActive ? 2 : 0,
               }}
             />
           );
@@ -85,6 +88,14 @@ function Home() {
 
   const handleDescriptionClick = (cardId) => {
     setExpandedCardId((prevId) => (prevId === cardId ? null : cardId));
+  };
+
+  const openFullscreen = (imgUrl) => {
+    setFullscreenImage(imgUrl);
+  };
+
+  const closeFullscreen = () => {
+    setFullscreenImage(null);
   };
 
   return (
@@ -150,6 +161,13 @@ function Home() {
                             src={`${BACKEND_URL}${card.descriptionImageUrl}`}
                             alt={`${card.title} description`}
                             className="description-image-expanded"
+                            style={{ cursor: "zoom-in" }}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent collapsing
+                              openFullscreen(
+                                `${BACKEND_URL}${card.descriptionImageUrl}`
+                              );
+                            }}
                           />
                         ) : card.description ? (
                           <p className="scratch-card-description">
@@ -197,6 +215,37 @@ function Home() {
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* Fullscreen modal */}
+        {fullscreenImage && (
+          <div
+            className="fullscreen-overlay"
+            onClick={closeFullscreen}
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              background: "rgba(0, 0, 0, 0.9)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
+            }}
+          >
+            <img
+              src={fullscreenImage}
+              alt="Fullscreen description"
+              style={{
+                maxWidth: "90%",
+                maxHeight: "90%",
+                objectFit: "contain",
+                cursor: "zoom-out",
+              }}
+            />
           </div>
         )}
       </main>
