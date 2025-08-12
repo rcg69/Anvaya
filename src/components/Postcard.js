@@ -13,74 +13,33 @@ function Postcard() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [fetchingLogo, setFetchingLogo] = useState(false);
 
-  // Handle description image upload
+  const BRAND_FETCH_CLIENT_ID = "curl --request GET \
+      --url https://api.brandfetch.io/v2/search/{name}?c=1idsqhMY-pEi7lMzSNM"; // Replace with your actual client ID
+
+  // Handle description image file selection and preview
   const handleDescriptionImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setDescriptionImage(file); // Actual file to be sent to backend
+      setDescriptionImage(file);
       setDescriptionType("image");
-      setDescription(URL.createObjectURL(file)); // For preview
+      setDescription(URL.createObjectURL(file));
     }
   };
 
-  // Fetch brand logo from Brandfetch API
-  const fetchBrandLogo = async (brandName) => {
-    if (!brandName.trim()) {
+  // Generate Brandfetch logo URL dynamically based on title input
+  useEffect(() => {
+    if (!title.trim()) {
       setImageUrl("");
       return;
     }
 
-    setFetchingLogo(true);
+    // Create domain by simple normalization: lowercase, remove spaces, add .com
+    const domain = `${title.toLowerCase().replace(/\s+/g, "")}.com`;
 
-    try {
-      const response = await fetch(
-        `https://api.brandfetch.io/v2/search/${encodeURIComponent(brandName)}`,
-        {
-          headers: {
-            Authorization: `WGAuGDL6Vp3uzOXrNthhX44KI513tiLNqMdUEGEo9K0=`, // Replace with your API key
-          },
-        }
-      );
+    const url = `https://cdn.brandfetch.io/${domain}/w/400/h/400?c=${BRAND_FETCH_CLIENT_ID}`;
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch brand data");
-      }
-
-      const data = await response.json();
-
-      if (data.length > 0) {
-        const brand = data[0];
-        // Get logo URL (prefer svg or png format)
-        let logoUrl = "";
-        if (brand.logo) {
-          logoUrl = brand.logo;
-        } else if (brand.logos && brand.logos.length > 0) {
-          const logosFormat = brand.logos[0].formats;
-          if (logosFormat && logosFormat.length > 0) {
-            logoUrl = logosFormat[0].src || "";
-          }
-        }
-        setImageUrl(logoUrl);
-      } else {
-        setImageUrl("");
-      }
-    } catch (error) {
-      console.error("Error fetching brand logo: ", error);
-      setImageUrl("");
-    } finally {
-      setFetchingLogo(false);
-    }
-  };
-
-  // Debounce fetch on title change
-  useEffect(() => {
-    const timerId = setTimeout(() => {
-      fetchBrandLogo(title);
-    }, 500); // 500ms debounce
-
-    return () => clearTimeout(timerId);
+    setImageUrl(url);
   }, [title]);
 
   const handleSubmit = async (e) => {
@@ -88,6 +47,7 @@ function Postcard() {
     setErrorMessage("");
     setSuccessMessage("");
 
+    // Basic validation
     if (!title.trim()) {
       setErrorMessage("Title is required.");
       return;
@@ -128,7 +88,7 @@ function Postcard() {
           `https://final-backend-srja.onrender.com/api/scratchCards`,
           {
             method: "POST",
-            body: formData, // Do NOT set Content-Type header; browser will handle
+            body: formData,
           }
         );
 
@@ -140,7 +100,6 @@ function Postcard() {
           setErrorMessage(data.error || "Failed to post card.");
         }
       } else {
-        // descriptionType === "text"
         const payload = {
           title,
           description,
@@ -199,7 +158,6 @@ function Postcard() {
         aria-label="Title"
         name="title"
       />
-      {fetchingLogo && <p>Fetching logo...</p>}
 
       {descriptionType === "text" ? (
         <>
@@ -248,9 +206,10 @@ function Postcard() {
       <input
         value={imageUrl}
         onChange={(e) => setImageUrl(e.target.value)}
-        placeholder="Image URL"
+        placeholder="Image URL (auto-filled)"
         aria-label="Image URL"
         name="imageUrl"
+         // optionally make this read-only to prevent accidental changes
       />
       <input
         value={price}
