@@ -18,9 +18,9 @@ function Postcard() {
   const handleDescriptionImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setDescriptionImage(file); // Actual file sent to backend
+      setDescriptionImage(file); // Actual file to be sent to backend
       setDescriptionType("image");
-      setDescription(URL.createObjectURL(file)); // For preview only
+      setDescription(URL.createObjectURL(file)); // For preview
     }
   };
 
@@ -69,7 +69,7 @@ function Postcard() {
           `https://final-backend-srja.onrender.com/api/scratchCards`,
           {
             method: "POST",
-            body: formData, // Let browser set content-type
+            body: formData, // Do NOT set Content-Type header; browser will handle
           }
         );
 
@@ -154,6 +154,7 @@ function Postcard() {
             type="button"
             onClick={() => setDescriptionType("image")}
             className="switch-desc-mode"
+            aria-label="Switch to image description"
           >
             Upload Screenshot Instead
           </button>
@@ -164,7 +165,7 @@ function Postcard() {
             type="file"
             accept="image/*"
             onChange={handleDescriptionImageChange}
-            aria-label="Description Image"
+            aria-label="Upload Description Image"
           />
           {description && (
             <img
@@ -177,6 +178,7 @@ function Postcard() {
             type="button"
             onClick={() => setDescriptionType("text")}
             className="switch-desc-mode"
+            aria-label="Switch to text description"
           >
             Type Description Instead
           </button>
