@@ -5,7 +5,11 @@ function Home() {
   const [scratchCards, setScratchCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [expandedCardId, setExpandedCardId] = useState(null); // Track which card's description is expanded
+  const [expandedCardId, setExpandedCardId] = useState(null);
+
+  // 🔹 Backend Base URL (from .env or fixed)
+  const BACKEND_URL =
+    process.env.REACT_APP_BACKEND_URL || "https://final-backend-srja.onrender.com";
 
   const bannerImages = [
     "https://m.media-amazon.com/images/S/al-eu-726f4d26-7fdb/e9512ab9-474c-49b4-9b56-1d004a582fd5._CR0%2C0%2C3000%2C600_SX1500_.jpg",
@@ -13,15 +17,13 @@ function Home() {
     "https://www.abhibus.com/blog/wp-content/uploads/2023/05/abhiubs-logo-696x423.jpg",
     "https://businessmodelnavigator.com/img/case-firms-logos/42.png",
     "https://palmonas.com/cdn/shop/files/web_link_creative_2.jpg?v=1738936545",
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_m9RRzlBWRBBpX39bUde7w0vwFN2IUpW68A&s",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_m9RRzlBWRBBpX39bUde7w0vwFN2IUpW68A&s"
   ];
 
   useEffect(() => {
     const fetchCards = async () => {
       try {
-        const response = await fetch(
-          `https://final-backend-srja.onrender.com/api/scratchCards`
-        );
+        const response = await fetch(`${BACKEND_URL}/api/scratchCards`);
         if (!response.ok) throw new Error("Failed to fetch scratch cards.");
         const data = await response.json();
         setScratchCards(data);
@@ -32,7 +34,7 @@ function Home() {
       }
     };
     fetchCards();
-  }, []);
+  }, [BACKEND_URL]);
 
   const BannerSlider = ({ images, interval = 6000 }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -56,7 +58,7 @@ function Home() {
 
     const dynamicStyle = {
       height: windowWidth <= 600 ? "30vh" : "50vh",
-      maxHeight: windowWidth <= 600 ? 200 : 300,
+      maxHeight: windowWidth <= 600 ? 200 : 300
     };
 
     return (
@@ -72,7 +74,7 @@ function Home() {
               style={{
                 opacity: isActive ? 1 : 0,
                 pointerEvents: isActive ? "auto" : "none",
-                zIndex: isActive ? 2 : 0,
+                zIndex: isActive ? 2 : 0
               }}
             />
           );
@@ -98,7 +100,9 @@ function Home() {
           </div>
         )}
 
-        {loading && <div className="loading-text">Loading scratch cards...</div>}
+        {loading && (
+          <div className="loading-text">Loading scratch cards...</div>
+        )}
 
         {!loading && !error && (
           <div className="scratch-cards-wrapper">
@@ -108,7 +112,6 @@ function Home() {
             <div className="scratch-cards-grid">
               {scratchCards.map((card, idx) => {
                 const isExpanded = expandedCardId === card._id;
-
                 return (
                   <article
                     key={card._id || idx}
@@ -126,7 +129,7 @@ function Home() {
                     )}
                     <h3 className="scratch-card-title">{card.title}</h3>
 
-                    {/* Description clickable area */}
+                    {/* CLICKABLE DESCRIPTION */}
                     <div
                       className="scratch-card-description-wrapper"
                       onClick={() => handleDescriptionClick(card._id)}
@@ -139,27 +142,21 @@ function Home() {
                       role="button"
                       tabIndex={0}
                       aria-expanded={isExpanded}
-                      aria-controls={`description-content-${card._id}`}
                       style={{ cursor: "pointer" }}
                     >
                       {isExpanded ? (
                         card.descriptionImageUrl ? (
                           <img
-                            id={`description-content-${card._id}`}
-                            src={`https://final-backend-srja.onrender.com${card.descriptionImageUrl}`}
-                            alt={`${card.title} description image`}
+                            src={`${BACKEND_URL}${card.descriptionImageUrl}`}
+                            alt={`${card.title} description`}
                             className="description-image-expanded"
                           />
                         ) : card.description ? (
-                          <p
-                            id={`description-content-${card._id}`}
-                            className="scratch-card-description"
-                          >
+                          <p className="scratch-card-description">
                             {card.description}
                           </p>
                         ) : (
                           <p
-                            id={`description-content-${card._id}`}
                             className="scratch-card-description"
                             style={{ fontStyle: "italic" }}
                           >
@@ -167,17 +164,12 @@ function Home() {
                           </p>
                         )
                       ) : (
-                        <p
-                          id={`description-content-${card._id}`}
-                          className="scratch-card-description scratch-card-description-collapsed"
-                          aria-label="Click to expand description"
-                        >
-                          {/* Show short preview or indicator */}
+                        <p className="scratch-card-description scratch-card-description-collapsed">
                           {card.descriptionImageUrl
                             ? "Click to view description image"
                             : card.description
                             ? card.description.length > 100
-                              ? card.description.slice(0, 100) + "..."
+                              ? `${card.description.slice(0, 100)}...`
                               : card.description
                             : "No description available"}
                         </p>
@@ -190,12 +182,15 @@ function Home() {
                     {card.posterEmail && (
                       <p className="scratch-card-poster">
                         Posted by:{" "}
-                        <a href={`mailto:${card.posterEmail}`}>{card.posterEmail}</a>
+                        <a href={`mailto:${card.posterEmail}`}>
+                          {card.posterEmail}
+                        </a>
                       </p>
                     )}
                     {card.expiryDate && (
                       <p className="scratch-card-expiry">
-                        Expires on: {new Date(card.expiryDate).toLocaleDateString()}
+                        Expires on:{" "}
+                        {new Date(card.expiryDate).toLocaleDateString()}
                       </p>
                     )}
                   </article>
