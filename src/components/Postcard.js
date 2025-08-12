@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./style/postcard.css";
 
 function Postcard() {
@@ -13,6 +13,7 @@ function Postcard() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [fetchingLogo, setFetchingLogo] = useState(false);
 
   // Handle description image upload
   const handleDescriptionImageChange = (e) => {
@@ -23,6 +24,64 @@ function Postcard() {
       setDescription(URL.createObjectURL(file)); // For preview
     }
   };
+
+  // Fetch brand logo from Brandfetch API
+  const fetchBrandLogo = async (brandName) => {
+    if (!brandName.trim()) {
+      setImageUrl("");
+      return;
+    }
+
+    setFetchingLogo(true);
+
+    try {
+      const response = await fetch(
+        `https://api.brandfetch.io/v2/search/${encodeURIComponent(brandName)}`,
+        {
+          headers: {
+            Authorization: `WGAuGDL6Vp3uzOXrNthhX44KI513tiLNqMdUEGEo9K0=`, // Replace with your API key
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch brand data");
+      }
+
+      const data = await response.json();
+
+      if (data.length > 0) {
+        const brand = data[0];
+        // Get logo URL (prefer svg or png format)
+        let logoUrl = "";
+        if (brand.logo) {
+          logoUrl = brand.logo;
+        } else if (brand.logos && brand.logos.length > 0) {
+          const logosFormat = brand.logos[0].formats;
+          if (logosFormat && logosFormat.length > 0) {
+            logoUrl = logosFormat[0].src || "";
+          }
+        }
+        setImageUrl(logoUrl);
+      } else {
+        setImageUrl("");
+      }
+    } catch (error) {
+      console.error("Error fetching brand logo: ", error);
+      setImageUrl("");
+    } finally {
+      setFetchingLogo(false);
+    }
+  };
+
+  // Debounce fetch on title change
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      fetchBrandLogo(title);
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timerId);
+  }, [title]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -140,6 +199,7 @@ function Postcard() {
         aria-label="Title"
         name="title"
       />
+      {fetchingLogo && <p>Fetching logo...</p>}
 
       {descriptionType === "text" ? (
         <>
