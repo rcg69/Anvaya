@@ -1,23 +1,83 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./style/postcard.css";
 
 function Postcard() {
   const [title, setTitle] = useState("");
-  const [descriptionType, setDescriptionType] = useState("text"); // "text" or "image"
+  const [suggestions, setSuggestions] = useState([]);
+  const [imageUrl, setImageUrl] = useState("");
+  const [descriptionType, setDescriptionType] = useState("text");
   const [description, setDescription] = useState("");
   const [descriptionImage, setDescriptionImage] = useState(null);
-  const [imageUrl, setImageUrl] = useState("");
   const [price, setPrice] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [posterEmail, setPosterEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [fetchingSuggestions, setFetchingSuggestions] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const BRAND_FETCH_CLIENT_ID = "curl --request GET \
-      --url https://api.brandfetch.io/v2/search/{name}?c=1idsqhMY-pEi7lMzSNM"; // Replace with your actual client ID
+  const apiKey = "WGAuGDL6Vp3uzOXrNthhX44KI513tiLNqMdUEGEo9K0="; // Your Brandfetch API key
 
-  // Handle description image file selection and preview
+  const debounceTimeoutRef = useRef(null);
+
+  // Fetch brand suggestions with debounce
+  useEffect(() => {
+    if (!title.trim()) {
+      setSuggestions([]);
+      setImageUrl("");
+      return;
+    }
+
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      fetchSuggestions(title);
+    }, 400);
+
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, [title]);
+
+  // Fetch suggestions from Brandfetch API using API key
+  const fetchSuggestions = async (searchTerm) => {
+    setFetchingSuggestions(true);
+    setErrorMessage("");
+    try {
+      const response = await fetch(
+        `https://api.brandfetch.io/v2/search/${encodeURIComponent(searchTerm)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch brand suggestions");
+      }
+      const data = await response.json();
+      setSuggestions(data || []);
+    } catch (error) {
+      setErrorMessage("Error fetching brand suggestions.");
+      setSuggestions([]);
+    } finally {
+      setFetchingSuggestions(false);
+    }
+  };
+
+  // When a suggestion is clicked, fill in the title and imageUrl fields
+  const handleSelectSuggestion = (brand) => {
+    setTitle(brand.name);
+    const logoUrl = brand.icon || (brand.logos && brand.logos[0]?.formats[0]?.src) || "";
+    setImageUrl(logoUrl);
+    setSuggestions([]);
+  };
+
+  // Handle description image upload and preview
   const handleDescriptionImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -27,27 +87,12 @@ function Postcard() {
     }
   };
 
-  // Generate Brandfetch logo URL dynamically based on title input
-  useEffect(() => {
-    if (!title.trim()) {
-      setImageUrl("");
-      return;
-    }
-
-    // Create domain by simple normalization: lowercase, remove spaces, add .com
-    const domain = `${title.toLowerCase().replace(/\s+/g, "")}.com`;
-
-    const url = `https://cdn.brandfetch.io/${domain}/w/400/h/400?c=${BRAND_FETCH_CLIENT_ID}`;
-
-    setImageUrl(url);
-  }, [title]);
-
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
 
-    // Basic validation
     if (!title.trim()) {
       setErrorMessage("Title is required.");
       return;
@@ -84,13 +129,10 @@ function Postcard() {
         formData.append("imageUrl", imageUrl);
         formData.append("descriptionImage", descriptionImage);
 
-        const res = await fetch(
-          `https://final-backend-srja.onrender.com/api/scratchCards`,
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
+        const res = await fetch(`https://final-backend-srja.onrender.com/api/scratchCards`, {
+          method: "POST",
+          body: formData,
+        });
 
         if (res.ok) {
           setSuccessMessage("Card posted successfully!");
@@ -109,14 +151,11 @@ function Postcard() {
           posterEmail,
         };
 
-        const res = await fetch(
-          `https://final-backend-srja.onrender.com/api/scratchCards`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          }
-        );
+        const res = await fetch(`https://final-backend-srja.onrender.com/api/scratchCards`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
 
         if (res.ok) {
           setSuccessMessage("Card posted successfully!");
@@ -142,22 +181,68 @@ function Postcard() {
     setExpiryDate("");
     setPosterEmail("");
     setDescriptionType("text");
+    setSuggestions([]);
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      aria-label="Post a new scratch card"
-      className="postcard-form"
-    >
-      <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Title"
-        required
-        aria-label="Title"
-        name="title"
-      />
+    <form onSubmit={handleSubmit} aria-label="Post a new scratch card" className="postcard-form" autoComplete="off">
+      <div style={{ position: "relative" }}>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Title (brand name)"
+          required
+          aria-label="Title"
+          name="title"
+          autoComplete="off"
+        />
+        {fetchingSuggestions && <div style={{ position: "absolute", right: 10, top: 8 }}>Loading...</div>}
+        {suggestions.length > 0 && (
+          <ul
+            className="suggestions-list"
+            style={{
+              listStyle: "none",
+              margin: 0,
+              padding: "0.5em",
+              border: "1px solid #ccc",
+              maxHeight: "150px",
+              overflowY: "auto",
+              background: "white",
+              position: "absolute",
+              width: "100%",
+              zIndex: 1000,
+            }}
+            role="listbox"
+          >
+            {suggestions.map((brand) => (
+              <li
+                key={brand.brandId || brand.name}
+                onClick={() => handleSelectSuggestion(brand)}
+                role="option"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    handleSelectSuggestion(brand);
+                    e.preventDefault();
+                  }
+                }}
+                style={{ cursor: "pointer", padding: "0.2em 0" }}
+                aria-selected={title === brand.name}
+              >
+                {brand.icon && (
+                  <img
+                    src={brand.icon}
+                    alt={`${brand.name} logo`}
+                    style={{ width: 20, height: 20, objectFit: "contain", marginRight: 8, verticalAlign: "middle" }}
+                  />
+                )}
+                {brand.name}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       {descriptionType === "text" ? (
         <>
@@ -179,19 +264,8 @@ function Postcard() {
         </>
       ) : (
         <>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleDescriptionImageChange}
-            aria-label="Upload Description Image"
-          />
-          {description && (
-            <img
-              src={description}
-              alt="Description Preview"
-              className="desc-preview"
-            />
-          )}
+          <input type="file" accept="image/*" onChange={handleDescriptionImageChange} aria-label="Upload Description Image" />
+          {description && <img src={description} alt="Description Preview" className="desc-preview" />}
           <button
             type="button"
             onClick={() => setDescriptionType("text")}
@@ -204,20 +278,15 @@ function Postcard() {
       )}
 
       <input
+        type="text"
         value={imageUrl}
         onChange={(e) => setImageUrl(e.target.value)}
-        placeholder="Image URL (auto-filled)"
+        placeholder="Image URL (auto-filled on brand selection)"
         aria-label="Image URL"
         name="imageUrl"
-         // optionally make this read-only to prevent accidental changes
+        readOnly
       />
-      <input
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-        placeholder="Price"
-        aria-label="Price"
-        name="price"
-      />
+      <input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price" aria-label="Price" name="price" />
       <input
         type="date"
         value={expiryDate}
@@ -230,7 +299,7 @@ function Postcard() {
         type="email"
         value={posterEmail}
         onChange={(e) => setPosterEmail(e.target.value)}
-        placeholder="Your Gmail"
+        placeholder="Your Email"
         aria-label="Poster Email"
         name="posterEmail"
         required
