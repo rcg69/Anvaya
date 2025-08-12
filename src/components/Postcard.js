@@ -18,10 +18,9 @@ function Postcard() {
   const handleDescriptionImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setDescriptionImage(file);
+      setDescriptionImage(file); // Actual file sent to backend
       setDescriptionType("image");
-      // Optionally create preview
-      setDescription(URL.createObjectURL(file));
+      setDescription(URL.createObjectURL(file)); // For preview only
     }
   };
 
@@ -51,18 +50,13 @@ function Postcard() {
     setLoading(true);
 
     try {
-      let payload = {
-        title,
-        price,
-        expiryDate,
-        posterEmail,
-        imageUrl,
-      };
+      if (descriptionType === "image") {
+        if (!descriptionImage) {
+          setErrorMessage("Please upload an image for the description.");
+          setLoading(false);
+          return;
+        }
 
-      if (descriptionType === "text") {
-        payload.description = description;
-      } else if (descriptionType === "image") {
-        // To send the image, use FormData
         const formData = new FormData();
         formData.append("title", title);
         formData.append("price", price);
@@ -75,7 +69,7 @@ function Postcard() {
           `https://final-backend-srja.onrender.com/api/scratchCards`,
           {
             method: "POST",
-            body: formData,
+            body: formData, // Let browser set content-type
           }
         );
 
@@ -86,26 +80,33 @@ function Postcard() {
           const data = await res.json();
           setErrorMessage(data.error || "Failed to post card.");
         }
-        setLoading(false);
-        return;
-      }
-
-      // Send JSON if description is text
-      const res = await fetch(
-        `https://final-backend-srja.onrender.com/api/scratchCards`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (res.ok) {
-        setSuccessMessage("Card posted successfully!");
-        resetForm();
       } else {
-        const data = await res.json();
-        setErrorMessage(data.error || "Failed to post card.");
+        // descriptionType === "text"
+        const payload = {
+          title,
+          description,
+          imageUrl,
+          price,
+          expiryDate,
+          posterEmail,
+        };
+
+        const res = await fetch(
+          `https://final-backend-srja.onrender.com/api/scratchCards`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }
+        );
+
+        if (res.ok) {
+          setSuccessMessage("Card posted successfully!");
+          resetForm();
+        } else {
+          const data = await res.json();
+          setErrorMessage(data.error || "Failed to post card.");
+        }
       }
     } catch (err) {
       setErrorMessage("Error posting card: " + err.message);
