@@ -145,3 +145,35 @@
   margin-top: 4px;
   user-select: text;
 }
+
+/* -------------------
+   📱 MOBILE FIXES
+------------------- */
+@media (max-width: 600px) {
+  /* Ensure full-width banner and better height ratio */
+  .banner-slider {
+    border-radius: 0;
+    max-height: 200px;
+  }
+
+  /* Center wrapper content properly */
+  .scratch-cards-wrapper {
+    padding: 0 8px;
+  }
+
+  /* Force single card full width & centered */
+  .scratch-cards-grid {
+    justify-content: center;
+  }
+
+  .scratch-card {
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .scratch-card-img {
+    height: auto;
+    max-height: 200px;
+  }
+}
