@@ -43,7 +43,7 @@ function Postcard() {
     };
   }, [title]);
 
-  // Fetch suggestions from Brandfetch API using API key
+  // Fetch suggestions from Brandfetch API
   const fetchSuggestions = async (searchTerm) => {
     setFetchingSuggestions(true);
     setErrorMessage("");
@@ -69,7 +69,7 @@ function Postcard() {
     }
   };
 
-  // When a suggestion is clicked, fill in the title and imageUrl fields
+  // When a suggestion is clicked, fill in title and imageUrl
   const handleSelectSuggestion = (brand) => {
     setTitle(brand.name);
     const logoUrl = brand.icon || (brand.logos && brand.logos[0]?.formats[0]?.src) || "";
