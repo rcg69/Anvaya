@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useAuth } from "@clerk/clerk-react";
 import "./style/postcard.css";
 
 function Postcard() {
+  const { getToken } = useAuth(); // Clerk hook to get auth token
+
   const [title, setTitle] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
@@ -16,26 +19,22 @@ function Postcard() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const apiKey = "WGAuGDL6Vp3uzOXrNthhX44KI513tiLNqMdUEGEo9K0="; // Your Brandfetch API key
-
+  const apiKey = "WGAuGDL6Vp3uzOXrNthhX44KI513tiLNqMdUEGEo9K0="; 
   const debounceTimeoutRef = useRef(null);
 
-  // Fetch brand suggestions with debounce
+  // Brandfetch API suggestions
   useEffect(() => {
     if (!title.trim()) {
       setSuggestions([]);
       setImageUrl("");
       return;
     }
-
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
-
     debounceTimeoutRef.current = setTimeout(() => {
       fetchSuggestions(title);
     }, 400);
-
     return () => {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
@@ -43,7 +42,6 @@ function Postcard() {
     };
   }, [title]);
 
-  // Fetch suggestions from Brandfetch API
   const fetchSuggestions = async (searchTerm) => {
     setFetchingSuggestions(true);
     setErrorMessage("");
@@ -56,12 +54,10 @@ function Postcard() {
           },
         }
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch brand suggestions");
-      }
+      if (!response.ok) throw new Error("Failed to fetch brand suggestions");
       const data = await response.json();
       setSuggestions(data || []);
-    } catch (error) {
+    } catch {
       setErrorMessage("Error fetching brand suggestions.");
       setSuggestions([]);
     } finally {
@@ -69,15 +65,16 @@ function Postcard() {
     }
   };
 
-  // When a suggestion is clicked, fill in title and imageUrl
   const handleSelectSuggestion = (brand) => {
     setTitle(brand.name);
-    const logoUrl = brand.icon || (brand.logos && brand.logos[0]?.formats[0]?.src) || "";
+    const logoUrl =
+      brand.icon ||
+      (brand.logos && brand.logos[0]?.formats[0]?.src) ||
+      "";
     setImageUrl(logoUrl);
     setSuggestions([]);
   };
 
-  // Handle description image upload and preview
   const handleDescriptionImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -87,40 +84,29 @@ function Postcard() {
     }
   };
 
-  // Handle form submission
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
 
-    if (!title.trim()) {
-      setErrorMessage("Title is required.");
-      return;
-    }
-    if (!expiryDate) {
-      setErrorMessage("Expiry date is required.");
-      return;
-    }
-    if (!posterEmail.trim()) {
-      setErrorMessage("Email is required.");
-      return;
-    }
+    if (!title.trim()) return setErrorMessage("Title is required.");
+    if (!expiryDate) return setErrorMessage("Expiry date is required.");
+    if (!posterEmail.trim()) return setErrorMessage("Email is required.");
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(posterEmail)) {
-      setErrorMessage("Invalid email format.");
-      return;
-    }
+    if (!emailRegex.test(posterEmail))
+      return setErrorMessage("Invalid email format.");
 
     setLoading(true);
-
     try {
+      const token = await getToken(); // Clerk token
+
       if (descriptionType === "image") {
         if (!descriptionImage) {
           setErrorMessage("Please upload an image for the description.");
           setLoading(false);
           return;
         }
-
         const formData = new FormData();
         formData.append("title", title);
         formData.append("price", price);
@@ -129,11 +115,14 @@ function Postcard() {
         formData.append("imageUrl", imageUrl);
         formData.append("descriptionImage", descriptionImage);
 
-        const res = await fetch(`https://final-backend-srja.onrender.com/api/scratchCards`, {
-          method: "POST",
-          body: formData,
-        });
-
+        const res = await fetch(
+          `https://final-backend-srja.onrender.com/api/scratchCards`,
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+          }
+        );
         if (res.ok) {
           setSuccessMessage("Card posted successfully!");
           resetForm();
@@ -150,13 +139,17 @@ function Postcard() {
           expiryDate,
           posterEmail,
         };
-
-        const res = await fetch(`https://final-backend-srja.onrender.com/api/scratchCards`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
+        const res = await fetch(
+          `https://final-backend-srja.onrender.com/api/scratchCards`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          }
+        );
         if (res.ok) {
           setSuccessMessage("Card posted successfully!");
           resetForm();
@@ -184,6 +177,7 @@ function Postcard() {
     setSuggestions([]);
   };
 
+ 
   return (
     <form onSubmit={handleSubmit} aria-label="Post a new scratch card" className="postcard-form" autoComplete="off">
       <div style={{ position: "relative" }}>
